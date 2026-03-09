@@ -1,0 +1,287 @@
+/* ── Page ── */
+.page {
+  min-height: calc(100vh - 48px);
+  background: #f5f7fa;
+  margin: -24px;
+  padding: 0;
+}
+
+/* ── Hero ── */
+.hero {
+  display: flex;
+  gap: 48px;
+  padding: 64px 48px;
+  background: linear-gradient(135deg, #fff 0%, #f0f5ff 100%);
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.heroMain {
+  flex: 1;
+}
+
+.heroSide {
+  flex-shrink: 0;
+}
+
+.brand {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.brandQ {
+  color: #1677ff;
+}
+
+.brandDash {
+  color: #d9d9d9;
+  margin: 0 2px;
+}
+
+.brandDev {
+  color: #1f1f1f;
+}
+
+.tagline {
+  font-size: 24px;
+  color: #1f1f1f;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 20px;
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.techHint {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+/* Code Block */
+.codeBlock {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  min-width: 280px;
+}
+
+.codeLine {
+  display: flex;
+  gap: 12px;
+}
+
+.codeComment {
+  color: #6a9955;
+}
+
+.codeCmd {
+  color: #dcdcaa;
+}
+
+.codeBlank {
+  height: 8px;
+}
+
+/* ── Sections ── */
+.section {
+  padding: 40px 48px;
+  border-bottom: 1px solid #e8e8e8;
+  background: #fff;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionIcon {
+  color: #1677ff;
+}
+
+/* ── Architecture ── */
+.archFlow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.archNode {
+  flex: 1;
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.archNode:hover {
+  border-color: #1677ff;
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.1);
+}
+
+.archNodeLine {
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+
+.archNodeLabel {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.archNodeDesc {
+  font-size: 13px;
+  color: #595959;
+  margin-bottom: 4px;
+}
+
+.archNodeDetail {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+.archArrow {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: #d9d9d9;
+  font-size: 20px;
+}
+
+.archNote {
+  margin-top: 16px;
+  font-size: 12px;
+  color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Tech Stack ── */
+.techGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.techBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #595959;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.techBadge:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+.techDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ── Capability Cards ── */
+.capCard {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 24px;
+  height: 100%;
+  transition: all 0.2s;
+}
+
+.capCard:hover {
+  border-color: #1677ff;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.capIcon {
+  font-size: 24px;
+  color: #1677ff;
+  margin-bottom: 16px;
+}
+
+.capTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 8px;
+}
+
+.capDesc {
+  font-size: 13px;
+  color: #8c8c8c;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding: 40px 24px;
+    gap: 32px;
+  }
+
+  .brand {
+    font-size: 36px;
+  }
+
+  .tagline {
+    font-size: 20px;
+  }
+
+  .section {
+    padding: 32px 24px;
+  }
+
+  .archFlow {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .archArrow {
+    transform: rotate(90deg);
+    padding: 8px 0;
+    justify-content: center;
+  }
+
+  .codeBlock {
+    min-width: auto;
+  }
+}

@@ -1,0 +1,32 @@
+# Air 热加载配置
+# 用法: air -- server        (启动 HTTP 服务)
+#       air -- <其他子命令>   (调试其他 Cobra 命令)
+# 通过 Makefile: make dev CMD=server
+
+[build]
+  # 工作目录
+  cmd = "go build -o ./bin/q-deploy ."
+  # 运行参数通过命令行 `air -- <args>` 传入
+  entrypoint = "./bin/q-deploy"
+  # 监听以下文件扩展名的变动
+  include_ext = ["go", "yaml", "yml", "toml", "json"]
+  # 排除不影响程序行为的目录
+  exclude_dir = ["bin", "gen/docs", "tmp", "vendor"]
+  # 排除不影响程序行为的文件
+  exclude_file = []
+  # 排除自动生成的文件模式（如有需要可追加）
+  exclude_regex = ["_test\\.go$"]
+  # 文件变更后延迟重启（毫秒），避免频繁触发
+  delay = 1000
+  # 发送中断信号而非直接 kill，让程序优雅关停
+  send_interrupt = true
+  # 发送中断后等待多久再强制 kill（秒）
+  kill_delay = 5
+
+[log]
+  # 不将 air 自身日志写入文件
+  main_only = true
+
+[misc]
+  # 文件变更时先清屏，保持终端清爽
+  clean_on_exit = true

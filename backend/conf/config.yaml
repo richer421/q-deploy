@@ -1,0 +1,46 @@
+app:
+  name: q-deploy
+  description: "下一代服务发布平台，ai 与云的原生应用"
+
+
+server:
+  port: 8080
+
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
+  password: "root"
+  database: "paas"
+  max_open_conns: 100
+  max_idle_conns: 10
+  max_lifetime: 3600
+
+redis:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
+  pool_size: 10
+
+kafka:
+  brokers:
+    - "127.0.0.1:9092"
+  max_retries: 3
+
+otel:
+  enabled: false
+  service_name: "q-deploy"
+  endpoint: "localhost:4317"
+  prometheus:
+    enabled: true
+    path: "/metrics"
+
+log:
+  level: "info"
+  format: "console"
+  file:
+    enabled: true
+    path: "logs/app.log"
+    max_size: 100
+    max_age: 30
+    compress: true
