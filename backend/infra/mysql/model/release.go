@@ -21,9 +21,10 @@ type Release struct {
 	ImageRef        string `gorm:"column:image_ref;type:varchar(512);not null" json:"image_ref"`              // 完整镜像引用（registry/repo:tag 或 registry/repo@sha256:xxx）
 
 	// ========== 发布核心 ==========
-	Version      int64         `gorm:"column:version;not null;uniqueIndex:idx_plan_version" json:"version"`                   // 发布版本号（同一 DeployPlan 下唯一）
-	Status       ReleaseStatus `gorm:"column:status;type:varchar(16);not null;default:'pending';index" json:"status"`         // 发布状态
-	RenderedYAML string        `gorm:"column:rendered_yaml;type:text;not null" json:"rendered_yaml"`                          // 渲染后的最终 YAML
+	Version          int64         `gorm:"column:version;not null;uniqueIndex:idx_plan_version" json:"version"`                   // 发布版本号（同一 DeployPlan 下唯一）
+	Status           ReleaseStatus `gorm:"column:status;type:varchar(16);not null;default:'pending';index" json:"status"`         // 发布状态
+	WorkloadYAML     string        `gorm:"column:workload_yaml;type:text;not null" json:"workload_yaml"`                          // 核心工作负载 YAML（Deployment/StatefulSet/Job 等）
+	ResourceYAML     string        `gorm:"column:resource_yaml;type:text" json:"resource_yaml,omitempty"`                         // 配套资源 YAML（ConfigMap/Secret/Service 等），更新操作即更新此部分
 
 	// ========== 引擎与策略（发布时快照，不随 CDConfig 变更而变） ==========
 	RendererType    string          `gorm:"column:renderer_type;type:varchar(32);not null" json:"renderer_type"`            // 渲染引擎（helm/kustomize/go_template）

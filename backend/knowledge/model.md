@@ -24,9 +24,12 @@
 | BusinessUnitID | int64 | NOT NULL, INDEX | 归属业务单元 |
 | DeployPlanID | int64 | NOT NULL, INDEX, UNIQUE(idx_plan_version) | 归属部署计划 |
 | CDConfigID | int64 | NOT NULL, INDEX | 归属 CD 配置 |
-| Version | int | NOT NULL, UNIQUE(idx_plan_version) | 发布版本号（同一 DeployPlan 下唯一） |
+| BuildArtifactID | int64 | NOT NULL, INDEX | 关联构建产物（来自 q-ci） |
+| ImageRef | varchar(512) | NOT NULL | 完整镜像引用 |
+| Version | int64 | NOT NULL, UNIQUE(idx_plan_version) | 发布版本号（同一 DeployPlan 下唯一） |
 | Status | varchar(16) | NOT NULL, DEFAULT 'pending', INDEX | 发布状态 |
-| RenderedYAML | text | NOT NULL | 渲染后的最终 YAML |
+| WorkloadYAML | text | NOT NULL | 核心工作负载 YAML（Deployment/StatefulSet/Job 等） |
+| ResourceYAML | text | - | 配套资源 YAML（ConfigMap/Secret/Service 等） |
 | RendererType | varchar(32) | NOT NULL | 渲染引擎（helm/kustomize/go_template） |
 | EngineType | varchar(32) | NOT NULL | 工作引擎（kubernetes/docker/ssh） |
 | ReleaseStrategy | json | NOT NULL | 发布策略快照（滚动/蓝绿/金丝雀） |
@@ -50,28 +53,45 @@
 
 - **设计说明**:
   - 通过 BusinessUnitID/DeployPlanID/CDConfigID 三级索引追溯到 q-metahub 元数据体系
+  - BuildArtifactID + ImageRef 记录本次发布使用的构建产物
   - DeployPlanID + Version 联合唯一索引，确保同一部署计划下版本号不重复
+  - WorkloadYAML 为核心工作负载渲染结果，ResourceYAML 为配套资源渲染结果
+  - **更新操作**：仅变更 ResourceYAML（配套资源），WorkloadYAML 和产物不变
+  - **发布操作**：新产物 + 新 WorkloadYAML + 新 ResourceYAML
+  - **回滚操作**：回退到历史版本的 WorkloadYAML + ResourceYAML
   - ReleaseStrategy 是发布时的策略快照，不随 CDConfig 后续变更而变
-  - Status 有独立索引，便于查询进行中的发布
 
 - **关联**:
   - Release N:1 BusinessUnit（q-metahub）
   - Release N:1 DeployPlan（q-metahub）
   - Release N:1 CDConfig（q-metahub）
+  - Release N:1 BuildArtifact（q-ci）
 
 ## 实体关系
 
 ```
-[q-metahub]
-      │
-      ├── BusinessUnit
-      │       │
-      │       └── DeployPlan
-      │               │
-      │               └── CDConfig
-      │
-      ▼
-   Release ──▶ 渲染引擎 ──▶ RenderedYAML
-      │
-      └──▶ 工作引擎 ──▶ 目标环境
+[q-metahub]                                    [q-ci]
+      │                                           │
+      ├── BusinessUnit                            │
+      │       │                                   │
+      │       └── DeployPlan                      │
+      │               │                           │
+      │               ├── CIConfig ──── 触发构建 ──▶ BuildArtifact
+      │               │                                   │
+      │               ├── CDConfig                        │
+      │               │     │                             │
+      │               │     ├── RenderEngine              │
+      │               │     └── ReleaseStrategy           │
+      │               │                                   │
+      │               └── InstanceConfig                  │
+      │                     │                             │
+      │                     ├── Spec (工作负载)            │
+      │                     └── AttachResources (配套资源) │
+      │                                                   │
+      └───────────────────────┬───────────────────────────┘
+                              ▼
+                           Release
+                              │
+                              ├── WorkloadYAML  ←── 渲染引擎(InstanceConfig.Spec)
+                              └── ResourceYAML  ←── 渲染引擎(InstanceConfig.AttachResources)
 ```

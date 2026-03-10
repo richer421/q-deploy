@@ -37,7 +37,8 @@ func newRelease(db *gorm.DB, opts ...gen.DOOption) release {
 	_release.ImageRef = field.NewString(tableName, "image_ref")
 	_release.Version = field.NewInt64(tableName, "version")
 	_release.Status = field.NewString(tableName, "status")
-	_release.RenderedYAML = field.NewString(tableName, "rendered_yaml")
+	_release.WorkloadYAML = field.NewString(tableName, "workload_yaml")
+	_release.ResourceYAML = field.NewString(tableName, "resource_yaml")
 	_release.RendererType = field.NewString(tableName, "renderer_type")
 	_release.EngineType = field.NewString(tableName, "engine_type")
 	_release.ReleaseStrategy = field.NewField(tableName, "release_strategy")
@@ -61,7 +62,8 @@ type release struct {
 	ImageRef        field.String
 	Version         field.Int64
 	Status          field.String
-	RenderedYAML    field.String
+	WorkloadYAML    field.String
+	ResourceYAML    field.String
 	RendererType    field.String
 	EngineType      field.String
 	ReleaseStrategy field.Field
@@ -91,7 +93,8 @@ func (r *release) updateTableName(table string) *release {
 	r.ImageRef = field.NewString(table, "image_ref")
 	r.Version = field.NewInt64(table, "version")
 	r.Status = field.NewString(table, "status")
-	r.RenderedYAML = field.NewString(table, "rendered_yaml")
+	r.WorkloadYAML = field.NewString(table, "workload_yaml")
+	r.ResourceYAML = field.NewString(table, "resource_yaml")
 	r.RendererType = field.NewString(table, "renderer_type")
 	r.EngineType = field.NewString(table, "engine_type")
 	r.ReleaseStrategy = field.NewField(table, "release_strategy")
@@ -119,7 +122,7 @@ func (r *release) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (r *release) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 14)
+	r.fieldMap = make(map[string]field.Expr, 15)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt
@@ -130,7 +133,8 @@ func (r *release) fillFieldMap() {
 	r.fieldMap["image_ref"] = r.ImageRef
 	r.fieldMap["version"] = r.Version
 	r.fieldMap["status"] = r.Status
-	r.fieldMap["rendered_yaml"] = r.RenderedYAML
+	r.fieldMap["workload_yaml"] = r.WorkloadYAML
+	r.fieldMap["resource_yaml"] = r.ResourceYAML
 	r.fieldMap["renderer_type"] = r.RendererType
 	r.fieldMap["engine_type"] = r.EngineType
 	r.fieldMap["release_strategy"] = r.ReleaseStrategy
