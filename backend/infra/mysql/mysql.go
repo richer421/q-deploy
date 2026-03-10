@@ -56,7 +56,7 @@ func Migrate() error {
 		return gorm.ErrInvalidDB
 	}
 	return DB.AutoMigrate(
-		&model.HelloWorld{},
+		&model.Release{},
 	)
 }
 

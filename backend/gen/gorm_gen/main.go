@@ -12,7 +12,9 @@ func main() {
 		Mode:    gen.WithDefaultQuery,
 	})
 
-	g.ApplyBasic(model.HelloWorld{})
+	g.ApplyBasic(
+		model.Release{},
+	)
 
 	g.Execute()
 }
