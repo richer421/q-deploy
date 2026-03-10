@@ -16,40 +16,62 @@
 
 - **表名**: releases
 - **模块**: release
-- **说明**: 一次发布操作的记录，保存完整快照确保可重复性
+- **说明**: 一次发布操作的完整记录，与 q-metahub 实体体系对齐
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | (BaseModel) | - | - | 嵌入通用基础字段 |
-| ServiceConfigRef | varchar(128) | NOT NULL, INDEX, UNIQUE(idx_config_version) | 服务配置引用（用于追溯来源） |
-| ConfigSnapshot | json | NOT NULL | 服务配置快照（保证一致性） |
-| RendererType | varchar(32) | NOT NULL | 渲染引擎类型（helm/kustomize/go_template） |
-| EngineType | varchar(32) | NOT NULL | 工作引擎类型（kubernetes/docker/ssh） |
-| OperationType | varchar(16) | NOT NULL | 操作类型（deploy/update/rollback） |
-| ArtifactType | varchar(32) | - | 包产物类型（image/binary/archive），update 时可为空 |
-| ArtifactRef | varchar(255) | - | 包产物引用（镜像地址/tag/文件路径） |
-| RenderedYAML | text | NOT NULL | 渲染后的 YAML |
-| Status | varchar(16) | NOT NULL, INDEX | 状态（pending/running/success/failed） |
-| Version | int | NOT NULL, UNIQUE(idx_config_version) | 版本号（同一 ServiceConfigRef 下唯一，用于回滚定位） |
+| BusinessUnitID | int64 | NOT NULL, INDEX | 归属业务单元 |
+| DeployPlanID | int64 | NOT NULL, INDEX, UNIQUE(idx_plan_version) | 归属部署计划 |
+| CDConfigID | int64 | NOT NULL, INDEX | 归属 CD 配置 |
+| Version | int | NOT NULL, UNIQUE(idx_plan_version) | 发布版本号（同一 DeployPlan 下唯一） |
+| Status | varchar(16) | NOT NULL, DEFAULT 'pending', INDEX | 发布状态 |
+| RenderedYAML | text | NOT NULL | 渲染后的最终 YAML |
+| RendererType | varchar(32) | NOT NULL | 渲染引擎（helm/kustomize/go_template） |
+| EngineType | varchar(32) | NOT NULL | 工作引擎（kubernetes/docker/ssh） |
+| ReleaseStrategy | json | NOT NULL | 发布策略快照（滚动/蓝绿/金丝雀） |
+
+**ReleaseStatus 枚举**：
+
+| 值 | 说明 |
+|------|------|
+| pending | 待发布 |
+| running | 发布中 |
+| success | 发布成功 |
+| failed | 发布失败 |
+
+**ReleaseStrategy 结构**（JSON 字段，从 CDConfig 快照）：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| DeploymentMode | string | rolling/blue_green/canary |
+| BatchRule | object | 分批规则（BatchCount/BatchRatio/TriggerType/Interval） |
+| CanaryTrafficRule | object | 金丝雀流量规则（仅 canary 模式） |
 
 - **设计说明**:
-  - `ConfigSnapshot` 保存发布时的配置快照，确保回滚时配置一致
-  - `RendererType` + `EngineType` 记录使用的引擎，支持异构环境
-  - `ArtifactType` 和 `ArtifactRef` 均可为空，update 操作（配置变更）无需包产物
-  - `ServiceConfigRef` + `Version` 联合唯一索引，确保同一服务配置下版本号不重复
-  - `Status` 字段有独立索引，便于查询"所有进行中的发布"
+  - 通过 BusinessUnitID/DeployPlanID/CDConfigID 三级索引追溯到 q-metahub 元数据体系
+  - DeployPlanID + Version 联合唯一索引，确保同一部署计划下版本号不重复
+  - ReleaseStrategy 是发布时的策略快照，不随 CDConfig 后续变更而变
+  - Status 有独立索引，便于查询进行中的发布
 
-- **关联**: Release 引用外部服务配置（元数据管理中心）
+- **关联**:
+  - Release N:1 BusinessUnit（q-metahub）
+  - Release N:1 DeployPlan（q-metahub）
+  - Release N:1 CDConfig（q-metahub）
 
 ## 实体关系
 
 ```
-[元数据管理中心]
+[q-metahub]
       │
-      │ 服务配置（外部）
-      ▼
-   Release ──────▶ 工作引擎 ──▶ 目标环境
+      ├── BusinessUnit
+      │       │
+      │       └── DeployPlan
+      │               │
+      │               └── CDConfig
       │
       ▼
-   渲染器
+   Release ──▶ 渲染引擎 ──▶ RenderedYAML
+      │
+      └──▶ 工作引擎 ──▶ 目标环境
 ```

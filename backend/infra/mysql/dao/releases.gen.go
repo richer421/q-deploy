@@ -30,16 +30,17 @@ func newRelease(db *gorm.DB, opts ...gen.DOOption) release {
 	_release.ID = field.NewInt64(tableName, "id")
 	_release.CreatedAt = field.NewTime(tableName, "created_at")
 	_release.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_release.ServiceConfigRef = field.NewString(tableName, "service_config_ref")
-	_release.ConfigSnapshot = field.NewBytes(tableName, "config_snapshot")
+	_release.BusinessUnitID = field.NewInt64(tableName, "business_unit_id")
+	_release.DeployPlanID = field.NewInt64(tableName, "deploy_plan_id")
+	_release.CDConfigID = field.NewInt64(tableName, "cd_config_id")
+	_release.BuildArtifactID = field.NewInt64(tableName, "build_artifact_id")
+	_release.ImageRef = field.NewString(tableName, "image_ref")
+	_release.Version = field.NewInt64(tableName, "version")
+	_release.Status = field.NewString(tableName, "status")
+	_release.RenderedYAML = field.NewString(tableName, "rendered_yaml")
 	_release.RendererType = field.NewString(tableName, "renderer_type")
 	_release.EngineType = field.NewString(tableName, "engine_type")
-	_release.OperationType = field.NewString(tableName, "operation_type")
-	_release.ArtifactType = field.NewString(tableName, "artifact_type")
-	_release.ArtifactRef = field.NewString(tableName, "artifact_ref")
-	_release.RenderedYAML = field.NewString(tableName, "rendered_yaml")
-	_release.Status = field.NewString(tableName, "status")
-	_release.Version = field.NewInt(tableName, "version")
+	_release.ReleaseStrategy = field.NewField(tableName, "release_strategy")
 
 	_release.fillFieldMap()
 
@@ -49,20 +50,21 @@ func newRelease(db *gorm.DB, opts ...gen.DOOption) release {
 type release struct {
 	releaseDo releaseDo
 
-	ALL              field.Asterisk
-	ID               field.Int64
-	CreatedAt        field.Time
-	UpdatedAt        field.Time
-	ServiceConfigRef field.String
-	ConfigSnapshot   field.Bytes
-	RendererType     field.String
-	EngineType       field.String
-	OperationType    field.String
-	ArtifactType     field.String
-	ArtifactRef      field.String
-	RenderedYAML     field.String
-	Status           field.String
-	Version          field.Int
+	ALL             field.Asterisk
+	ID              field.Int64
+	CreatedAt       field.Time
+	UpdatedAt       field.Time
+	BusinessUnitID  field.Int64
+	DeployPlanID    field.Int64
+	CDConfigID      field.Int64
+	BuildArtifactID field.Int64
+	ImageRef        field.String
+	Version         field.Int64
+	Status          field.String
+	RenderedYAML    field.String
+	RendererType    field.String
+	EngineType      field.String
+	ReleaseStrategy field.Field
 
 	fieldMap map[string]field.Expr
 }
@@ -82,16 +84,17 @@ func (r *release) updateTableName(table string) *release {
 	r.ID = field.NewInt64(table, "id")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
-	r.ServiceConfigRef = field.NewString(table, "service_config_ref")
-	r.ConfigSnapshot = field.NewBytes(table, "config_snapshot")
+	r.BusinessUnitID = field.NewInt64(table, "business_unit_id")
+	r.DeployPlanID = field.NewInt64(table, "deploy_plan_id")
+	r.CDConfigID = field.NewInt64(table, "cd_config_id")
+	r.BuildArtifactID = field.NewInt64(table, "build_artifact_id")
+	r.ImageRef = field.NewString(table, "image_ref")
+	r.Version = field.NewInt64(table, "version")
+	r.Status = field.NewString(table, "status")
+	r.RenderedYAML = field.NewString(table, "rendered_yaml")
 	r.RendererType = field.NewString(table, "renderer_type")
 	r.EngineType = field.NewString(table, "engine_type")
-	r.OperationType = field.NewString(table, "operation_type")
-	r.ArtifactType = field.NewString(table, "artifact_type")
-	r.ArtifactRef = field.NewString(table, "artifact_ref")
-	r.RenderedYAML = field.NewString(table, "rendered_yaml")
-	r.Status = field.NewString(table, "status")
-	r.Version = field.NewInt(table, "version")
+	r.ReleaseStrategy = field.NewField(table, "release_strategy")
 
 	r.fillFieldMap()
 
@@ -116,20 +119,21 @@ func (r *release) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (r *release) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 13)
+	r.fieldMap = make(map[string]field.Expr, 14)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt
-	r.fieldMap["service_config_ref"] = r.ServiceConfigRef
-	r.fieldMap["config_snapshot"] = r.ConfigSnapshot
+	r.fieldMap["business_unit_id"] = r.BusinessUnitID
+	r.fieldMap["deploy_plan_id"] = r.DeployPlanID
+	r.fieldMap["cd_config_id"] = r.CDConfigID
+	r.fieldMap["build_artifact_id"] = r.BuildArtifactID
+	r.fieldMap["image_ref"] = r.ImageRef
+	r.fieldMap["version"] = r.Version
+	r.fieldMap["status"] = r.Status
+	r.fieldMap["rendered_yaml"] = r.RenderedYAML
 	r.fieldMap["renderer_type"] = r.RendererType
 	r.fieldMap["engine_type"] = r.EngineType
-	r.fieldMap["operation_type"] = r.OperationType
-	r.fieldMap["artifact_type"] = r.ArtifactType
-	r.fieldMap["artifact_ref"] = r.ArtifactRef
-	r.fieldMap["rendered_yaml"] = r.RenderedYAML
-	r.fieldMap["status"] = r.Status
-	r.fieldMap["version"] = r.Version
+	r.fieldMap["release_strategy"] = r.ReleaseStrategy
 }
 
 func (r release) clone(db *gorm.DB) release {
