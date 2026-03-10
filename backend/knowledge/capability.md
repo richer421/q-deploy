@@ -27,18 +27,11 @@
 - **回滚**：回退到历史版本
 - 发布单管理与状态追踪
 
-### Hello World（示例模块）
-
-示例业务场景，用于演示完整的 CRUD 流程和分层架构。
-
-- 创建、查询、更新、删除记录
-- 分页列表查询
-
 ### MCP Server
 
 独立 MCP Server，供 Claude 调用：
 
 - `q-deploy mcp` — 启动 MCP Server（stdio 模式）
 - 工具：
-  - `call_api` — 调用 API（action: hello_world.list/get/create/update/delete）
+  - `call_api` — 调用 API
   - `read_logs` — 读取日志文件

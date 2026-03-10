@@ -16,34 +16,34 @@ import (
 )
 
 var (
-	Q          = new(Query)
-	HelloWorld *helloWorld
+	Q       = new(Query)
+	Release *release
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
-	HelloWorld = &Q.HelloWorld
+	Release = &Q.Release
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:         db,
-		HelloWorld: newHelloWorld(db, opts...),
+		db:      db,
+		Release: newRelease(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	HelloWorld helloWorld
+	Release release
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:         db,
-		HelloWorld: q.HelloWorld.clone(db),
+		db:      db,
+		Release: q.Release.clone(db),
 	}
 }
 
@@ -57,18 +57,18 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:         db,
-		HelloWorld: q.HelloWorld.replaceDB(db),
+		db:      db,
+		Release: q.Release.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	HelloWorld *helloWorldDo
+	Release *releaseDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		HelloWorld: q.HelloWorld.WithContext(ctx),
+		Release: q.Release.WithContext(ctx),
 	}
 }
 
