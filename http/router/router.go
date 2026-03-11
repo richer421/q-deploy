@@ -3,14 +3,17 @@ package router
 import (
 	"context"
 	"net/http"
+	"path/filepath"
 	"time"
-
-	infrakafka "github.com/richer421/q-deploy/infra/kafka"
-	inframysql "github.com/richer421/q-deploy/infra/mysql"
-	infraredis "github.com/richer421/q-deploy/infra/redis"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+
+	"github.com/richer421/q-deploy/domain/engine"
+	render "github.com/richer421/q-deploy/domain/render"
+	infrakafka "github.com/richer421/q-deploy/infra/kafka"
+	inframysql "github.com/richer421/q-deploy/infra/mysql"
+	infraredis "github.com/richer421/q-deploy/infra/redis"
 )
 
 func Register(r *gin.Engine) {
@@ -27,7 +30,31 @@ func Register(r *gin.Engine) {
 
 	// 业务路由
 	api := r.Group("/api")
-	RegisterV1(api)
+
+	// 初始化渲染器（当前仅支持 K8s 原生渲染）
+	renderer, err := render.New(render.Config{Type: render.TypeK8sNative})
+	if err != nil {
+		panic(err)
+	}
+
+	// 初始化 GitOps 发布引擎（使用 renderer + 默认 ReleaseRepo）
+	appTplPath := filepath.Join("templates", "gitops", "app-argocd.yaml.tpl")
+	gitOpsEngine, err := engine.New(engine.Config{
+		Type:            engine.TypeGitOps,
+		AppTemplatePath: appTplPath,
+		ArgoNamespace:   "argocd",
+		ArgoProject:     "default",
+		ClusterServer:   "https://kubernetes.default.svc",
+	},
+		renderer,
+		NewGitClient(), // 由 http/router 提供 git 客户端实现
+		nil,            // 使用默认 ReleaseRepo（dao.Release）
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	RegisterV1(api, gitOpsEngine)
 }
 
 func readyz(c *gin.Context) {
