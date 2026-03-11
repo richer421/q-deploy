@@ -1,5 +1,5 @@
 # 构建产物
-backend/bin/
+bin/
 
 # IDE
 .idea/
@@ -16,7 +16,7 @@ logs/
 *.log
 
 # 环境配置（含敏感信息时取消注释）
-# backend/conf/config.yaml
+# conf/config.yaml
 
 # Docker 数据卷
 deploy/*_data/
@@ -25,19 +25,12 @@ deploy/*_data/
 .claude/
 
 # Swagger 自动生成文档
-backend/gen/docs/
+gen/docs/
 
 # 测试覆盖率
-backend/coverage.out
-backend/coverage.html
+coverage.out
+coverage.html
 
 # 临时文件
 tmp/
 *.tmp
-
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/src/.umi/
-frontend/src/.umi-production/
-docs/

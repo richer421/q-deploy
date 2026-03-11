@@ -1,0 +1,5 @@
+deploy/
+.claude/
+.git/
+.gitignore
+tmp/

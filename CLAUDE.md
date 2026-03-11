@@ -5,12 +5,11 @@
 ## 技术栈
 
 - **后端**: Go 1.25 + Gin + GORM Gen + Cobra（模块名: `github.com/richer421/q-deploy`）
-- **前端**: React + Umi Max + Ant Design Pro
 - **基础设施**: MySQL 8.0 / Redis 7 / Kafka 3.7
 - **可观测性**: OpenTelemetry + Jaeger + Prometheus
 - **工程化**: Swagger 自动文档 / golangci-lint / Makefile / Air 热重载 / Docker Compose
 
-## 后端架构
+## 架构
 
 采用 DDD 分层架构，严格单向依赖：`http → app → domain → infra`
 
@@ -21,7 +20,6 @@
 - **knowledge 层**: 项目自我描述，纯 Markdown，不参与运行时
 
 ```
-backend/
 ├── main.go                     # 入口，仅调用 cmd.Execute()
 ├── cmd/                        # CLI 命令层（Cobra）
 │   ├── root.go                 #   根命令，加载配置 + 初始化日志，支持 -c 指定配置文件
@@ -71,27 +69,11 @@ backend/
         └── main.go             #   GORM Gen 脚本，离线运行，无需连接数据库
 ```
 
-## 前端架构
-
-```
-frontend/                       # Ant Design Pro + Umi Max
-├── .umirc.ts                   #   路由、代理（/api/* → localhost:8080）、布局配置
-├── src/
-│   ├── app.ts                  #   应用初始化
-│   ├── pages/                  #   页面组件
-│   ├── models/                 #   全局状态
-│   ├── constants/              #   常量
-│   └── utils/                  #   工具函数
-```
-
-- 开发服务器: `http://localhost:8000`
-- API 代理: `/api/*` → `http://localhost:8080`
-
 ## 部署
 
 ```
 deploy/
-├── Dockerfile                  # 多阶段构建（Alpine，含 librdkafka）
+├── backend-Dockerfile          # 多阶段构建（Alpine，含 librdkafka）
 ├── docker-compose.yml          # 全栈：MySQL + Redis + Kafka + OTel Collector + Jaeger + Prometheus
 ├── otel-collector.yaml
 └── prometheus.yml
@@ -100,7 +82,7 @@ deploy/
 ## Makefile
 
 ```bash
-make build          # 编译 Go 二进制到 backend/bin/q-dev
+make build          # 编译 Go 二进制到 bin/q-deploy
 make run            # 编译 + 运行 server
 make dev            # Air 热重载（make dev CMD=server）
 make swagger        # 生成 Swagger 文档到 gen/docs/
@@ -182,10 +164,3 @@ func NewXxxAPI() *XxxAPI {
 - `/healthz` — 存活探针（始终 200）
 - `/readyz` — 就绪探针（检查 MySQL/Redis/Kafka，异常返回 503）
 - `/debug/pprof/*` — Go 性能分析
-
-### 前端规范
-
-- **组件库**: 严格使用 Ant Design 组件，禁止自定义样式
-- **类型安全**: 严格使用 TypeScript，禁止 `any` 类型
-- **状态管理**: 使用 Umi Model（`src/models/`）
-- **API 调用**: 统一放在 `src/services/`

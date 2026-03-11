@@ -8,10 +8,10 @@ RUN apk add --no-cache \
     pkgconf
 
 WORKDIR /src
-COPY backend/go.mod backend/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY backend/ .
+COPY . .
 RUN CGO_ENABLED=1 go build -tags musl -o /app/{{ .ProjectName }} .
 
 # ---------- 运行阶段 ----------
@@ -21,7 +21,7 @@ RUN apk add --no-cache ca-certificates tzdata librdkafka
 
 WORKDIR /app
 COPY --from=builder /app/{{ .ProjectName }} .
-COPY backend/conf/config.yaml ./conf/config.yaml
+COPY conf/config.yaml ./conf/config.yaml
 
 EXPOSE 8080
 
