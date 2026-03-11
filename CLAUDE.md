@@ -148,10 +148,10 @@ func NewXxxAPI() *XxxAPI {
 {"code": -1, "message": "错误信息"}               // 失败
 ```
 
-### 测试模式
+### 测试范式
 
-- 使用 `testutil.NewMockDB()` 创建 sqlmock 数据库
-- 使用 `testutil.NewMockRedis()` 创建 miniredis 实例
+- 对 app 层关键函数编写测试，SQL 和 HTTP 均使用 mock（`testutil.NewMockDB()` / `httptest.NewServer`）
+- 测试中对入参和结果进行标准化输出（`logInput` / `logOutput` / `logResult`），方便查看执行过程
 - 测试文件与源码同目录，`*_test.go` 命名
 
 ### 基础设施生命周期
