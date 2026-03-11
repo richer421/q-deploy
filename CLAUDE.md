@@ -73,7 +73,7 @@
 
 ```
 deploy/
-├── backend-Dockerfile          # 多阶段构建（Alpine，含 librdkafka）
+├── Dockerfile          # 多阶段构建（Alpine，含 librdkafka）
 ├── docker-compose.yml          # 全栈：MySQL + Redis + Kafka + OTel Collector + Jaeger + Prometheus
 ├── otel-collector.yaml
 └── prometheus.yml

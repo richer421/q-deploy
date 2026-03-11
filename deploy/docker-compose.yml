@@ -3,7 +3,7 @@ services:
     profiles: [deploy]
     build:
       context: ..
-      dockerfile: deploy/backend-Dockerfile
+      dockerfile: deploy/Dockerfile
     ports:
       - "8080:8080"
     environment:
