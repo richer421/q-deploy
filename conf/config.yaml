@@ -4,20 +4,20 @@ app:
 
 
 server:
-  port: 8080
+  port: 18082
 
 mysql:
   host: "127.0.0.1"
-  port: 3306
+  port: 30306
   user: "root"
-  password: "root"
-  database: "paas"
+  password: "root123"
+  database: "appdb"
   max_open_conns: 100
   max_idle_conns: 10
   max_lifetime: 3600
 
 redis:
-  addr: "127.0.0.1:6379"
+  addr: "127.0.0.1:30379"
   password: ""
   db: 0
   pool_size: 10
@@ -44,3 +44,13 @@ log:
     max_size: 100
     max_age: 30
     compress: true
+
+metahub:
+  base_url: "http://127.0.0.1:18080"
+  token: ""
+  timeout: 10
+
+qci:
+  base_url: "http://127.0.0.1:18081"
+  token: ""
+  timeout: 10

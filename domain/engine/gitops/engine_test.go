@@ -76,12 +76,22 @@ func (r *fakeReleaseRepo) Create(_ context.Context, rel *model.Release) (int64, 
 	return 42, nil
 }
 
+type fakeApplicationApplier struct {
+	manifest []byte
+}
+
+func (a *fakeApplicationApplier) Apply(_ context.Context, manifest []byte) error {
+	a.manifest = append([]byte(nil), manifest...)
+	return nil
+}
+
 func TestEnginePublish_InvalidGitOpsConfig(t *testing.T) {
 	r := &fakeRenderer{}
 	g := &fakeGitClient{}
 	repo := &fakeReleaseRepo{}
 
 	engine := NewEngine(r, g, repo,
+		nil,
 		filepath.Join("templates", "gitops", "app-argocd.yaml.tpl"),
 		"argocd",
 		"default",
@@ -105,9 +115,11 @@ func TestEnginePublish_HappyPath(t *testing.T) {
 	}
 	gc := &fakeGitClient{}
 	repo := &fakeReleaseRepo{}
+	applier := &fakeApplicationApplier{}
 
 	appTplPath := filepath.Join("..", "..", "..", "templates", "gitops", "app-argocd.yaml.tpl")
 	engine := NewEngine(fr, gc, repo,
+		applier,
 		appTplPath,
 		"argocd",
 		"default",
@@ -244,6 +256,9 @@ func TestEnginePublish_HappyPath(t *testing.T) {
 	// Verify Release persisted via repo
 	if repo.last == nil {
 		t.Fatalf("release repo did not receive create call")
+	}
+	if len(applier.manifest) == 0 {
+		t.Fatalf("argocd application was not applied")
 	}
 
 	rel := repo.last

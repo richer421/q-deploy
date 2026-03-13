@@ -31,7 +31,7 @@ func (e *Renderer) Render(_ context.Context, in rendermodel.Input) (*rendermodel
 	// 当前版本只实现 deployment + rolling
 	// 其他实例类型如果传进来，也按 deployment 方式渲染，调用方自己约束
 	// 拷贝一份 spec，避免直接修改输入
-	spec := copyMap(in.Instance.Spec)
+	spec := deploymentSpec(in.Instance.Spec)
 
 	// 注入镜像
 	injectImage(spec, in.ImageRef)
@@ -59,6 +59,17 @@ func (e *Renderer) Render(_ context.Context, in rendermodel.Input) (*rendermodel
 		WorkloadYAML: string(workloadYAML),
 		ResourceYAML: "",
 	}, nil
+}
+
+func deploymentSpec(spec map[string]any) map[string]any {
+	root := copyMap(spec)
+	if root == nil {
+		return nil
+	}
+	if deployment, ok := root["deployment"].(map[string]any); ok {
+		return copyMap(deployment)
+	}
+	return root
 }
 
 // copyMap 做一个浅拷贝，避免直接修改输入数据结构

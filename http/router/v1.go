@@ -12,4 +12,5 @@ func RegisterV1(apiGroup *gin.RouterGroup, engine engine.Engine) {
 	deployAPI := api.NewDeployAPI(engine)
 	// GitOps 发布入口
 	v1.POST("/deploy/gitops", deployAPI.ReleaseWithGitOps)
+	v1.POST("/releases/execute", deployAPI.ExecuteRelease)
 }

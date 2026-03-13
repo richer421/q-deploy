@@ -38,13 +38,14 @@ type Config struct {
 // New 是 Engine 总工厂
 // 根据 cfg.Type 选择具体实现，保证上层只依赖 engine 包而不直接感知 gitops 等子实现
 
-func New(cfg Config, renderer render.Renderer, gitClient gitops.GitClient, releaseRepo gitops.ReleaseRepo) (Engine, error) {
+func New(cfg Config, renderer render.Renderer, gitClient gitops.GitClient, releaseRepo gitops.ReleaseRepo, appApplier gitops.ApplicationApplier) (Engine, error) {
 	switch cfg.Type {
 	case TypeGitOps:
 		return gitops.NewEngine(
 			renderer,
 			gitClient,
 			releaseRepo,
+			appApplier,
 			cfg.AppTemplatePath,
 			cfg.ArgoNamespace,
 			cfg.ArgoProject,
@@ -54,4 +55,3 @@ func New(cfg Config, renderer render.Renderer, gitClient gitops.GitClient, relea
 		return nil, fmt.Errorf("engine: unsupported type %q", cfg.Type)
 	}
 }
-

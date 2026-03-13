@@ -49,6 +49,7 @@ func Register(r *gin.Engine) {
 		renderer,
 		NewGitClient(), // 由 http/router 提供 git 客户端实现
 		nil,            // 使用默认 ReleaseRepo（dao.Release）
+		NewKubectlApplicationApplier(),
 	)
 	if err != nil {
 		panic(err)

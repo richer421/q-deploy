@@ -10,12 +10,14 @@ import (
 var C Config
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	MySQL  MySQLConfig  `yaml:"mysql"`
-	Redis  RedisConfig  `yaml:"redis"`
-	Kafka  KafkaConfig  `yaml:"kafka"`
-	Log    LogConfig    `yaml:"log"`
-	OTel   OTelConfig   `yaml:"otel"`
+	Server  ServerConfig          `yaml:"server"`
+	MySQL   MySQLConfig           `yaml:"mysql"`
+	Redis   RedisConfig           `yaml:"redis"`
+	Kafka   KafkaConfig           `yaml:"kafka"`
+	Log     LogConfig             `yaml:"log"`
+	OTel    OTelConfig            `yaml:"otel"`
+	Metahub UpstreamServiceConfig `yaml:"metahub"`
+	QCI     UpstreamServiceConfig `yaml:"qci"`
 }
 
 type ServerConfig struct {
@@ -82,6 +84,12 @@ type PrometheusConfig struct {
 	Path    string `yaml:"path"`
 }
 
+type UpstreamServiceConfig struct {
+	BaseURL string `yaml:"base_url"`
+	Token   string `yaml:"token"`
+	Timeout int    `yaml:"timeout"`
+}
+
 func Load(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -90,25 +98,5 @@ func Load(path string) error {
 	if err := yaml.Unmarshal(data, &C); err != nil {
 		return err
 	}
-	applyEnvOverrides()
 	return nil
-}
-
-// applyEnvOverrides 从环境变量覆盖配置（用于 Docker 部署）
-func applyEnvOverrides() {
-	if v := os.Getenv("MYSQL_HOST"); v != "" {
-		C.MySQL.Host = v
-	}
-	if v := os.Getenv("REDIS_ADDR"); v != "" {
-		C.Redis.Addr = v
-	}
-	if v := os.Getenv("KAFKA_BROKERS"); v != "" {
-		C.Kafka.Brokers = []string{v}
-	}
-	if v := os.Getenv("OTEL_ENDPOINT"); v != "" {
-		C.OTel.Endpoint = v
-	}
-	if v := os.Getenv("OTEL_ENABLED"); v == "true" {
-		C.OTel.Enabled = true
-	}
 }

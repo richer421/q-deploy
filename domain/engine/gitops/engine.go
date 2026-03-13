@@ -67,6 +67,10 @@ type ReleaseRepo interface {
 	Create(ctx context.Context, r *model.Release) (int64, error)
 }
 
+type ApplicationApplier interface {
+	Apply(ctx context.Context, manifest []byte) error
+}
+
 // Engine 将一次发布转换为 GitOps + Release 记录的具体实现
 // 满足 domain/engine.Engine 接口
 
@@ -74,6 +78,7 @@ type Engine struct {
 	renderer        render.Renderer
 	gitClient       GitClient
 	releaseRepo     ReleaseRepo
+	appApplier      ApplicationApplier
 	appTemplatePath string
 	argoNamespace   string
 	argoProject     string
@@ -81,7 +86,7 @@ type Engine struct {
 }
 
 func NewEngine(renderer render.Renderer, gitClient GitClient, releaseRepo ReleaseRepo,
-	appTemplatePath, argoNamespace, argoProject, clusterServer string,
+	appApplier ApplicationApplier, appTemplatePath, argoNamespace, argoProject, clusterServer string,
 ) *Engine {
 	if releaseRepo == nil {
 		releaseRepo = &defaultReleaseRepo{}
@@ -90,6 +95,7 @@ func NewEngine(renderer render.Renderer, gitClient GitClient, releaseRepo Releas
 		renderer:        renderer,
 		gitClient:       gitClient,
 		releaseRepo:     releaseRepo,
+		appApplier:      appApplier,
 		appTemplatePath: appTemplatePath,
 		argoNamespace:   argoNamespace,
 		argoProject:     argoProject,
@@ -102,6 +108,17 @@ func NewEngine(renderer render.Renderer, gitClient GitClient, releaseRepo Releas
 type defaultReleaseRepo struct{}
 
 func (r *defaultReleaseRepo) Create(ctx context.Context, rel *model.Release) (int64, error) {
+	last, err := dao.Q.WithContext(ctx).Release.
+		Where(dao.Release.DeployPlanID.Eq(rel.DeployPlanID)).
+		Order(dao.Release.Version.Desc()).
+		First()
+	if err == nil && last != nil {
+		rel.Version = last.Version + 1
+	} else if err != nil {
+		rel.Version = 1
+	} else {
+		rel.Version = 1
+	}
 	if err := dao.Q.WithContext(ctx).Release.Create(rel); err != nil {
 		return 0, err
 	}
@@ -174,6 +191,11 @@ func (e *Engine) Publish(ctx context.Context, in PublishInput) (*PublishResult, 
 	commitMsg := fmt.Sprintf("deploy plan %d via gitops", in.DeployPlanID)
 	if err := wc.CommitAndPush(commitMsg); err != nil {
 		return nil, fmt.Errorf("gitops: commit/push failed: %w", err)
+	}
+	if e.appApplier != nil {
+		if err := e.appApplier.Apply(ctx, []byte(appYAML)); err != nil {
+			return nil, fmt.Errorf("gitops: apply argocd application failed: %w", err)
+		}
 	}
 
 	// 5. 创建 Release 记录
